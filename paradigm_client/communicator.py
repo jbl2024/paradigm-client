@@ -66,6 +66,7 @@ class Communicator(AbstractCommunicator):
             headers=self.headers | request_id,
             timeout=self.timeout_s,
             raise_for_status=self.raise_for_status,
+            trust_env=True,
         ) as session:
             async with session.post(f"/llm/{endpoint.value}", json={"data": data}) as resp:
                 response = await resp.json()
@@ -75,7 +76,7 @@ class Communicator(AbstractCommunicator):
     async def _get_progress_task(self, session_id: str, num_tasks: int, endpoint: Endpoint):
         num_completed_tasks = 0
         with tqdm(total=num_tasks) as pbar:
-            async with aiohttp.ClientSession(base_url=self.base_address) as session:
+            async with aiohttp.ClientSession(base_url=self.base_address, trust_env=True) as session:
                 while True:
                     async with session.get(f"/progress/{session_id}") as resp:
                         response = await resp.json()
